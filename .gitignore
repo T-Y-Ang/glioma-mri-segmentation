@@ -179,3 +179,26 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+# -------------------------------------------------------------
+# Glioma MRI project
+# -------------------------------------------------------------
+
+# Medical imaging datasets
+data/raw/*
+data/interim/*
+data/processed/*
+
+# Trained model files
+models/*.pt
+models/*.pth
+models/*.ckpt
+
+# Common neuroimaging files
+*.nii
+*.nii.gz
+
+
+# Keep empty data-directory structure in Git
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
