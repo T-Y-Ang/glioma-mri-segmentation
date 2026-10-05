@@ -389,3 +389,44 @@ This repository is under active development.
 The commit history documents the project as it progresses from initial MRI
 exploration through preprocessing, model development, evaluation, and clinical
 interpretation.
+
+## Current Progress
+
+### Completed
+
+- Set up a reproducible Python environment with GPU-enabled PyTorch, MONAI,
+  NiBabel and supporting scientific Python libraries.
+- Downloaded and verified the BraTS 2024 Adult Glioma training dataset.
+- Extracted and validated 1,350 training cases containing 6,750 NIfTI volumes.
+- Explored the structure of 3D NIfTI MRI data, including:
+  - voxel arrays and image dimensions;
+  - voxel spacing;
+  - affine transformations;
+  - anatomical orientation.
+- Loaded and compared the four aligned MRI modalities:
+  - native T1-weighted (`t1n`);
+  - contrast-enhanced T1-weighted (`t1c`);
+  - T2-weighted (`t2w`);
+  - T2-FLAIR (`t2f`).
+- Verified multimodal spatial alignment using image dimensions and NIfTI affine
+  transformations.
+- Loaded and explored the supplied reference tumour segmentations.
+- Developed segmentation-driven selection of tumour-containing MRI slices.
+- Visualised reference tumour masks over the corresponding MRI.
+- Quantified labelled tumour compartments using physical voxel dimensions.
+
+### In Progress
+
+- MRI intensity analysis and normalization.
+- Development of the preprocessing pipeline for 3D deep-learning input.
+
+### Next Steps
+
+- Construct model-ready multimodal MRI and segmentation tensors.
+- Define reproducible training, validation and test splits.
+- Implement a baseline 3D segmentation network.
+- Train the model using the BraTS reference segmentations.
+- Evaluate segmentation performance using quantitative metrics such as Dice
+  similarity.
+- Visualise model predictions against reference segmentations and analyse
+  failure cases.
