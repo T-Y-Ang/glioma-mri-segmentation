@@ -1,0 +1,21 @@
+{
+  "experiment_id": "pilot_unet_20261012_174410",
+  "architecture": "MONAI 3D UNet",
+  "training_cases": 24,
+  "validation_cases": 4,
+  "epochs": 10,
+  "patch_size": [
+    96,
+    96,
+    96
+  ],
+  "patches_per_case": 2,
+  "batch_size_cases": 1,
+  "learning_rate": 0.0001,
+  "weight_decay": 1e-05,
+  "loss_function": "DiceCELoss",
+  "random_seed": 42,
+  "device": "cuda:0",
+  "checkpoint_every_epochs": 1,
+  "maximum_runtime_minutes": 150
+}
