@@ -752,6 +752,89 @@ The intervention was developed and evaluated using the same limited validation s
 
 Its performance on independent data remains unknown.
 
+### 9.9 Relative-Confidence Post-processing Experiment
+
+#### Rationale
+
+The initial ET-priority exclusion rule substantially reduced false-positive resection-cavity predictions but also removed genuine cavity tissue in some examinations.
+
+In examination `BraTS-GLI-02817-100`, ET-priority removed 193 correctly predicted cavity voxels, reducing recall by 18.45 percentage points.
+
+Further investigation demonstrated that some genuine cavity voxels were assigned high probabilities for both enhancing tumour (ET) and resection cavity (RC).
+
+Among the 193 removed true-positive voxels, mean predicted ET and RC probabilities were 0.8862 and 0.8591, respectively. Eighty reference cavity voxels had both ET and RC scores of at least 0.9.
+
+These findings motivated an alternative post-processing strategy.
+
+#### Method
+
+A relative-confidence rule was evaluated using the same epoch-38 model checkpoint.
+
+When both ET and RC were predicted, RC was retained if its sigmoid score was greater than or equal to the ET score.
+
+The rule was compared against:
+
+1. The original RC prediction.
+2. Unconditional ET-priority exclusion.
+3. Relative-confidence priority.
+
+All 24 validation examinations were evaluated without retraining.
+
+#### Results in RC-present examinations
+
+| Metric | Original | ET-priority | Relative-confidence |
+|---|---:|---:|---:|
+| Mean Dice | 0.5405 | 0.5748 | 0.5754 |
+| Mean precision | 0.5377 | 0.5906 | 0.5878 |
+| Mean recall | 0.6490 | 0.6261 | 0.6347 |
+
+Relative-confidence priority achieved a marginally higher mean Dice than ET-priority, with a difference of 0.0006.
+
+Relative-confidence also increased recall compared with ET-priority but reduced precision.
+
+#### Results in RC-absent examinations
+
+| Method | False-positive RC voxels |
+|---|---:|
+| Original | 102,424 |
+| ET-priority | 13,777 |
+| Relative-confidence | 15,886 |
+
+Compared with the original model, ET-priority reduced false-positive RC volume by 86.55%, while relative-confidence reduced it by 84.49%.
+
+Both methods retained false-positive predictions in all five RC-absent examinations.
+
+#### Paired comparison
+
+Comparing relative-confidence directly against ET-priority in the 19 RC-present examinations:
+
+- Dice improved in eight examinations, worsened in eight and remained unchanged in three.
+- Precision improved in four, worsened in 12 and remained unchanged in three.
+- Recall improved in 14, worsened in none and remained unchanged in five.
+- The relative-confidence rule restored 978 true-positive RC voxels but also restored 3,397 false-positive voxels.
+
+Compared with the original model, ET-priority improved Dice in 13 examinations and worsened it in four. Relative-confidence improved Dice in 15 examinations and worsened it in two.
+
+However, improvements were unevenly distributed.
+
+In `BraTS-GLI-02382-100`, relative-confidence increased Dice from 0.2360 to 0.5108. This single examination accounted for approximately 41% of the mean Dice improvement across the 19 RC-present examinations.
+
+#### Interpretation
+
+Relative-confidence priority partially mitigated the sensitivity loss caused by unconditional ET-priority exclusion.
+
+However, it also restored additional false-positive predictions and did not consistently improve Dice compared with ET-priority.
+
+The marginal difference in mean Dice does not establish superiority, particularly given the small validation sample and the exploratory development of both methods on the same cohort.
+
+Neither method resolved the normal CSF-space-associated errors identified during anatomical review.
+
+These findings suggest that additional post-processing rules alone may be insufficient to address the model's underlying difficulties in distinguishing enhancing tumour, postoperative cavity and normal CSF spaces.
+
+Future experiments should investigate training-based approaches to improving tissue discrimination and anatomical consistency.
+
+**No post-processing method has yet been selected for final deployment or independent testing.**
+
 ---
 
 ## 10. Integrated Clinical Interpretation
