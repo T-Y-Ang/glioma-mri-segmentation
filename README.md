@@ -278,6 +278,8 @@ glioma-mri-segmentation/
 ├── reports/
 │   └── glioma_segmentation_report.md
 │
+├── environment.yml                 # Core software environment
+├── requirements-lock.txt           # Recorded Python dependency versions
 ├── README.md
 └── .gitignore
 ```
@@ -294,6 +296,8 @@ The repository is organised to separate the main stages of the research workflow
 | `04_model_evaluation.ipynb` | Independent held-out evaluation, statistical comparisons and anatomical failure analysis |
 | `glioma_segmentation_report.md` | Complete research methodology, results, clinical interpretation and limitations |
 | `outputs/figures/` | Figures supporting the quantitative and anatomical analyses |
+| [`environment.yml`](environment.yml) | Core Python, PyTorch/CUDA, MONAI and scientific computing dependencies for environment reconstruction |
+| [`requirements-lock.txt`](requirements-lock.txt) | Detailed snapshot of the 165 installed Python packages and their recorded versions |
 
 ### Data and Checkpoint Availability
 
@@ -301,7 +305,11 @@ The original BraTS MRI dataset, large model checkpoints and local experimental a
 
 The trained checkpoint and full underlying evaluation artifacts are not currently distributed through this repository. Consequently, the published notebooks and documentation support inspection of the methodology, but complete computational reproduction requires access to the original data and the frozen model checkpoint.
 
-The repository's final reproducibility preparation will include reviewing software dependencies, verifying relative paths and checking that no private or machine-specific information is inadvertently committed.
+The software environment used for this study is documented in [`environment.yml`](environment.yml), with a detailed snapshot of installed Python dependencies in [`requirements-lock.txt`](requirements-lock.txt). The environment specification includes the CUDA 13.0-enabled PyTorch build used for model development and evaluation.
+
+The dependency versions have been checked for consistency, and the YAML configuration has been validated. However, a fresh environment installation and end-to-end computational reproduction have not yet been independently tested. The original MRI dataset, frozen model checkpoint and complete local experimental artifacts remain outside the public repository.
+
+Final repository quality checks, including notebook outputs, relative paths and public accessibility, remain in progress.
 
 ---
 
@@ -309,7 +317,7 @@ The repository's final reproducibility preparation will include reviewing softwa
 
 The principal experimental study has been completed, including model training, validation-informed post-processing development, independent held-out evaluation and clinical failure analysis.
 
-Final repository documentation, environment specification and public reproducibility checks remain in progress.
+The research report, evaluation figures and software environment specifications have been completed and committed to the public repository. Remaining work focuses on notebook and file-path auditing, public accessibility checks and final GitHub release preparation.
 
 ### Phase 1 — MRI Data Exploration (Completed)
 
@@ -378,15 +386,15 @@ Final repository documentation, environment specification and public reproducibi
 - [x] Document the final held-out results and statistical comparisons.
 - [x] Document anatomical interpretation, limitations and future directions.
 - [x] Generate the final evaluation figures.
+- [x] Document the software environment and verify dependency-version consistency.
+- [x] Confirm that the intended research report, notebooks and evaluation figures are committed.
 - [ ] Finalise the public-facing README.
-- [ ] Document and verify the software environment.
 - [ ] Review notebook outputs, repository paths and public reproducibility.
-- [ ] Confirm that all intended research documentation and figures are committed.
 - [ ] Complete the final GitHub repository quality audit.
 
 **Research report:** [`glioma_segmentation_report.md`](reports/glioma_segmentation_report.md)
 
-**Current milestone:** The experimental research and independent evaluation are complete. Remaining work concerns documentation, reproducibility and preparation of the public portfolio release.
+**Current milestone:** The experimental research, independent evaluation, research documentation and software environment specification are complete. Remaining work concerns final README refinement, notebook and path auditing, and public GitHub release verification.
 
 ---
 
@@ -743,9 +751,9 @@ The project was developed using the following technologies:
 
 Model development and evaluation were performed using a local NVIDIA GPU-enabled workstation.
 
-The final repository preparation includes documenting software dependencies and reviewing the requirements for reproducing the experimental workflow.
+The principal software dependencies are documented in [`environment.yml`](environment.yml), including the CUDA-enabled PyTorch build used for model development and evaluation. A detailed snapshot of installed Python packages is provided in [`requirements-lock.txt`](requirements-lock.txt).
 
-The original imaging dataset and trained model checkpoint are stored separately from the public repository.
+The environment specification has undergone syntax and dependency-version consistency checks, but recreation in a fresh environment has not yet been independently tested. The original imaging dataset and trained model checkpoint are stored separately from the public repository, limiting complete computational reproducibility.
 
 ---
 
@@ -784,8 +792,9 @@ The principal research milestones have been completed:
 - Independent evaluation on 198 MRI examinations from 92 subjects.
 - Statistical analysis, false-positive assessment and anatomical failure-case review.
 - Preparation of the full research report and evaluation figures.
+- Documentation and version-consistency verification of the software environment.
 
-Remaining repository tasks include finalising the README, documenting the software environment, reviewing notebook outputs and file paths, verifying public research artifacts and completing the final GitHub quality audit.
+Remaining repository tasks include finalising the README, reviewing notebook outputs and file paths, verifying public accessibility of the research artifacts and completing the final GitHub quality audit. Independent recreation of the software environment and complete computational reproduction remain unverified.
 
 The Git commit history documents the project's progression from initial MRI exploration through model development, independent evaluation and clinical interpretation.
 
