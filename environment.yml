@@ -1,0 +1,38 @@
+# Software environment for the BraTS 2024 GLI
+# postoperative glioma MRI segmentation study.
+#
+# Target platform: Linux / WSL2, Python 3.11
+# PyTorch: CUDA 13.0 build from the official PyTorch wheel index.
+#
+# The environment has not yet been independently recreated.
+# requirements-lock.txt records the detailed package snapshot.
+
+name: glioma-ml
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      # Additional index for CUDA-enabled PyTorch packages.
+      - --extra-index-url https://download.pytorch.org/whl/cu130
+
+      # Deep learning and medical image analysis.
+      - torch==2.14.1+cu130
+      - torchvision==0.29.1+cu130
+      - torchaudio==2.11.0+cu130
+      - monai==1.6.1
+      - nibabel==5.4.2
+
+      # Scientific computing and evaluation.
+      - numpy==2.4.6
+      - scipy==1.17.1
+      - pandas==3.0.6
+      - matplotlib==3.11.2
+      - scikit-learn==1.9.1
+
+      # Interactive notebooks.
+      - jupyterlab==4.6.4
+      - ipykernel==7.4.0
