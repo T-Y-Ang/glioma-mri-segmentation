@@ -1,13 +1,14 @@
 # Glioma MRI Segmentation — Research Report
 
-**Project:** Deep Learning for Glioma MRI Segmentation  
-**Dataset:** BraTS 2024 Glioma (GLI)  
-**Framework:** PyTorch and MONAI  
-**Model:** 3D U-Net  
-**Status:** Baseline training completed; preliminary validation and clinical error analysis completed; held-out testing pending  
-**Last updated:** 16 October 2026
+**Project:** Deep Learning for Glioma MRI Segmentation
+**Dataset:** BraTS 2024 Glioma (GLI)
+**Framework:** PyTorch and MONAI
+**Model:** 3D U-Net
+**Status:** Experimental research completed; independent held-out evaluation completed; repository finalisation in progress
+**Last updated:** 17 October 2026
 
-> **Research status:** This is a living research report documenting the methodology, experimental decisions, quantitative results, clinical observations, limitations and future directions of the project. Current results are derived from a limited validation subset and do not establish clinical readiness.
+> **Research status:** This living research report documents the completed model-development experiments, validation analyses, independent held-out evaluation, clinical anatomical observations, limitations and future directions. The findings represent retrospective evaluation within a single benchmark dataset and do not establish clinical deployment readiness.
+
 
 ---
 
@@ -15,7 +16,7 @@
 
 ### 1.1 Background
 
-Glioma segmentation is an important component of neuro-oncological imaging research. Delineation of tumour-associated abnormalities and postoperative resection cavities may support quantitative assessment of disease extent, longitudinal imaging analysis and future development of computer-assisted surgical planning tools.
+Glioma segmentation is an important component of neuro-oncological imaging research. Delineation of tumour-associated abnormalities and postoperative resection cavities may support quantitative assessment of disease extent, longitudinal imaging analysis and future development of computer-assisted surgical planning tools [1, 2].
 
 Manual segmentation requires considerable expertise and time. Deep learning provides a potential means of automating segmentation, but numerical agreement with reference annotations does not necessarily guarantee anatomical plausibility or clinical usefulness.
 
@@ -46,7 +47,7 @@ For this reason, quantitative evaluation is complemented by examination of indiv
 
 ### 2.1 Dataset source
 
-The project uses the **BraTS 2024 Glioma (GLI)** training dataset obtained through Synapse.
+The project uses the **BraTS 2024 Glioma (GLI)** training dataset obtained through Synapse [1, 2].
 
 The dataset provides multimodal MRI examinations with reference segmentation annotations.
 
@@ -101,6 +102,8 @@ This manifest includes local imaging paths and should not be published without r
 
 For the first training experiment, a smaller subset was selected to establish the full modelling and evaluation workflow.
 
+The experimental subset sizes refer to MRI examinations, not unique subjects. The larger dataset partitions were established using subject-level separation to prevent cross-partition leakage. The model-development subsets were drawn from their respective partitions.
+
 | Cohort | Examinations |
 |---|---:|
 | Training subset | 180 |
@@ -117,7 +120,7 @@ The validation subset contained:
 
 This initial experiment was intended to establish a reproducible baseline, identify implementation problems and investigate early model behaviour.
 
-The held-out test cohort has not yet been evaluated.
+Following model development and validation-stage experiments, the selected baseline checkpoint was evaluated on the complete held-out test partition of **198 examinations from 92 subjects**. The independent evaluation was conducted using a protocol frozen before test results were examined. Full results are presented in Section 10.
 
 ---
 
@@ -125,7 +128,7 @@ The held-out test cohort has not yet been evaluated.
 
 ### 3.1 Original reference labels
 
-The original segmentation labels are:
+The original segmentation labels are [1, 2]:
 
 | Label value | Tissue category |
 |---|---|
@@ -220,7 +223,7 @@ The hypothesis has not yet been tested experimentally.
 
 ### 5.1 Baseline model
 
-A 3D U-Net was implemented using MONAI.
+A 3D U-Net was implemented using MONAI [3, 4].
 
 | Parameter | Configuration |
 |---|---|
@@ -231,7 +234,7 @@ A 3D U-Net was implemented using MONAI.
 | Strides | 2, 2, 2, 2 |
 | Residual units per stage | 2 |
 | Trainable parameters | 4,811,129 |
-| Output activation | Sigmoid |
+| Output activation | Sigmoid applied to model logits during inference |
 
 The four input channels correspond to the MRI modalities.
 
@@ -239,7 +242,7 @@ The four output channels correspond to WT, TC, ET and RC.
 
 ### 5.2 Loss function
 
-The training objective combines Dice loss and binary cross-entropy loss.
+The training objective combines Dice loss [5] and binary cross-entropy loss.
 
 The implementation is maintained in:
 
@@ -322,7 +325,41 @@ However, the relatively small validation subset limits the conclusions that can 
 
 The observed training and validation curves do not establish that the model is adequately optimised or free from overfitting.
 
-More comprehensive validation is required.
+These initial validation findings informed subsequent clinical error analysis and experimental comparisons. The selected baseline checkpoint was subsequently evaluated on the independent held-out test cohort, as reported in Section 10.
+
+### 6.5 Cavity-Aware Sampling Experiment
+
+Following baseline training and clinical error analysis, a second training experiment investigated whether increasing the representation of resection-cavity-containing patches could improve cavity segmentation.
+
+The experiment was identified as:
+
+`unet_cavity_aware_180train_24val_20261016_042611`
+
+The experiment retained the same general 3D U-Net architecture and model-development cohort, allowing comparison with the original baseline while investigating a modified sampling strategy.
+
+Training was completed over 40 epochs.
+
+The cavity-aware experiment achieved a best validation macro Dice of approximately **0.6740**, with a corresponding resection-cavity Dice of approximately **0.5212**.
+
+By comparison, the original baseline achieved a best validation macro Dice of **0.6809** and resection-cavity Dice of **0.5405**.
+
+The alternative sampling strategy therefore did not demonstrate an improvement in either overall validation macro Dice or mean resection-cavity Dice.
+
+Furthermore, the cavity-aware experiment produced an increased burden of false-positive cavity predictions during validation.
+
+These findings suggest that increasing exposure to cavity-containing training patches, without adequately addressing difficult negative examples and anatomical discrimination, may be insufficient to improve cavity segmentation.
+
+However, this was a limited experimental comparison rather than a comprehensive assessment of cavity-aware sampling strategies.
+
+### 6.6 Final Model Selection
+
+The original baseline checkpoint from **epoch 38** was retained for independent evaluation.
+
+This decision was based on its validation performance and the absence of a convincing improvement from the cavity-aware experiment.
+
+The selected checkpoint, raw prediction threshold and validation-informed relative-confidence post-processing method were recorded in the frozen evaluation protocol before the held-out test cohort was examined.
+
+No further training or model selection was performed using the held-out test results.
 
 ---
 
@@ -609,6 +646,8 @@ The correction modifies only the predicted RC mask.
 
 ### 9.3 False-positive reduction in RC-absent examinations
 
+The following results were obtained during the initial ET-priority post-processing experiment. Minor one-voxel differences from the independently reproduced validation metrics in Section 7.4 reflect differences observed between inference runs. The original recorded measurements are retained rather than retrospectively harmonised.
+
 In the five RC-absent examinations:
 
 | Measurement | Original | After correction |
@@ -748,11 +787,11 @@ These findings support further investigation of anatomically consistent segmenta
 
 However, they do not justify unconditional adoption of the post-processing rule.
 
-The intervention was developed and evaluated using the same limited validation subset.
-
-Its performance on independent data remains unknown.
+The unconditional ET-priority intervention was developed and assessed on the limited validation subset. It was not selected for the independent held-out test comparison. Subsequent validation experiments led to selection of the relative-confidence method as the secondary test analysis, as described in Section 9.9.
 
 ### 9.9 Relative-Confidence Post-processing Experiment
+
+The following values were obtained during the subsequent three-method comparison using the original, ET-priority and relative-confidence predictions. The raw baseline count of 102,424 differs by one voxel from the earlier post-processing experiment. This discrepancy was observed between evaluation runs and has not been attributed to a confirmed technical cause.
 
 #### Rationale
 
@@ -863,6 +902,12 @@ No model retraining, threshold optimisation or post-processing adjustment was pe
 The selected baseline model was evaluated across four segmentation regions: whole tumour (WT), tumour core (TC), enhancing tumour (ET) and resection cavity (RC).
 
 Mean Dice, precision and recall were calculated among examinations in which the corresponding reference region was present.
+
+For each segmentation region, mean Dice was calculated across examinations containing that region in the reference annotation. The macro-average Dice was then calculated as the unweighted arithmetic mean of the four regional mean Dice values (WT, TC, ET and RC).
+
+Consequently, each region contributed equally to the macro-average, regardless of the number of reference-present examinations. Region-absent examinations were excluded from the corresponding regional Dice mean and were evaluated separately using false-positive measurements.
+
+This definition differs from calculating a single mean Dice across all examination–region combinations.
 
 | Region | Reference-present examinations | Raw Dice | Corrected Dice | Raw precision | Corrected precision | Raw recall | Corrected recall |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -1457,7 +1502,7 @@ The impact on RC sensitivity, ET sensitivity and clinically important boundary e
 
 ### 13.4 Alternative Architectures and Greater Anatomical Context
 
-The baseline model used a conventional 3D U-Net trained on 96 × 96 × 96 voxel patches.
+The baseline model used a conventional 3D U-Net [6] trained on 96 × 96 × 96 voxel patches.
 
 This configuration provided a practical balance between three-dimensional anatomical information and available GPU memory.
 
@@ -1589,7 +1634,7 @@ These masks could be converted into three-dimensional surface representations us
 
 A possible workflow would involve:
 
-1. Loading the original MRI volumes and segmentation masks into a medical-imaging platform such as **3D Slicer**.
+1. Loading the original MRI volumes and segmentation masks into a medical-imaging platform such as **3D Slicer**[8].
 2. Reviewing and, where necessary, manually correcting the segmentation boundaries.
 3. Generating three-dimensional surface meshes from the selected anatomical regions.
 4. Performing mesh inspection, smoothing and repair.
@@ -1644,7 +1689,7 @@ A particularly relevant longer-term direction is the integration of tumour segme
 
 Glioma surgery requires consideration not only of tumour location and extent but also of the relationship between pathological tissue and functionally important neural pathways.
 
-Diffusion MRI and tractography can provide estimates of white-matter pathway trajectories, although these estimates are subject to technical and biological limitations.
+Diffusion MRI and tractography can provide estimates of white-matter pathway trajectories, although these estimates are subject to technical and biological limitations [9].
 
 A future research framework could integrate:
 
@@ -1751,7 +1796,7 @@ The principal project components are:
 | `README.md` | Project overview, navigation, principal findings and instructions |
 | `notebooks/01_mri_data_exploration.ipynb` | Dataset inspection, MRI visualisation and initial exploration |
 | `notebooks/03_unet_model_development.ipynb` | Model development, training experiments, validation and clinical error analysis |
-| `notebooks/04_model_evaluation.ipynb` | Planned standalone presentation of final evaluation and saved results |
+| `notebooks/04_model_evaluation.ipynb` | Completed independent held-out evaluation, regional performance analysis, paired resection-cavity comparisons,subject-clustered bootstrap analysis, anatomical failure-case investigation and reproducibility checks. |
 | `src/preprocessing.py` | Reusable MRI preprocessing and label transformation functions |
 | `src/losses.py` | Segmentation loss functions used during model development |
 | `reports/glioma_segmentation_report.md` | Detailed research methodology, results, interpretation and limitations |
@@ -1863,24 +1908,31 @@ Where practical and permitted, derived evaluation summaries and figures should b
 
 ### 15.7 Independent Evaluation Notebook
 
-A separate evaluation notebook, `notebooks/04_model_evaluation.ipynb`, is planned to consolidate the final results into a clear, reproducible workflow.
+The completed evaluation notebook, `notebooks/04_model_evaluation.ipynb`, consolidates the independent held-out test results, quantitative comparisons, statistical uncertainty analysis and clinically informed investigation of segmentation errors.
 
-Its intended structure is:
+The notebook was developed to provide a transparent record of the final evaluation without requiring readers to navigate the full model-development history.
 
-1. Environment and repository-path configuration.
-2. Loading and verification of saved evaluation metrics.
-3. Reconstruction of regional Dice, precision and recall summaries.
-4. Analysis of false-positive predictions in region-absent examinations.
-5. Paired RC Dice comparison.
-6. Subject-clustered bootstrap confidence interval estimation.
-7. Generation of final performance figures.
-8. Optional checkpoint loading and inference, when the required model and imaging data are available.
+Its principal components include:
 
-The notebook should be executable independently of variables created during earlier notebook sessions.
+1. **Evaluation configuration and provenance:** Documentation of the selected epoch-38 checkpoint, preprocessing pipeline, inference settings and frozen evaluation protocol.
+2. **Held-out test verification:** Loading and checking the saved case-level metrics for 198 examinations from 92 subjects.
+3. **Regional segmentation performance:** Analysis of Dice, precision and recall across WT, TC, ET and RC, with appropriate handling of reference-absent regions.
+4. **Resection-cavity post-processing comparison:** Paired analysis of raw and relative-confidence-corrected RC predictions, including examination-level improvements and deteriorations.
+5. **False-positive burden:** Quantification of erroneous RC predictions in examinations without annotated resection cavities.
+6. **Statistical uncertainty:** Subject-clustered bootstrap estimation of the confidence interval for the mean paired RC Dice improvement.
+7. **Clinical failure-case investigation:** Reconstruction and anatomical analysis of the examination demonstrating the largest deterioration following correction, including ET and RC model-score comparisons.
+8. **Visualisation:** Generation of eight figures illustrating aggregate performance, false-positive burden, post-processing trade-offs and selected anatomical errors.
+9. **Final reproducibility checks:** Verification of saved experiment artifacts, test cohort coverage, metric-table completeness, figure availability and reference-absent metric handling.
 
-Importantly, summary analysis from saved metrics should remain possible without access to the original MRI volumes or a compatible GPU.
+The saved evaluation table contains 1,584 rows, representing two prediction methods and four anatomical regions for each of the 198 held-out examinations. These results allow the principal aggregate statistics and paired comparisons to be recalculated without repeating full-volume model inference.
 
-Optional inference functionality should be clearly separated from the lightweight analytical workflow.
+The notebook also includes a targeted reconstruction of examination `BraTS-GLI-02119-101` using the frozen checkpoint and recorded preprocessing and inference settings. Reconstructed RC voxel counts and Dice scores matched the previously saved evaluation results, providing an additional reproducibility check for this selected failure case.
+
+**Reproducibility boundaries:** Analyses based on saved metrics can be performed without rerunning GPU inference, provided the required derived files are accessible. Reconstructing individual MRI predictions requires the original imaging data, trained checkpoint and compatible software environment.
+
+The final integrity-check cell is independently executable after a Jupyter kernel restart and verifies the availability and structural completeness of the principal local evaluation artifacts.
+
+The notebook therefore provides a completed and independently reviewable record of the held-out evaluation, while recognising that full computational reproduction remains dependent on separately stored imaging data and model artifacts.
 
 ### 15.8 Software Environment and Computational Hardware
 
@@ -1923,17 +1975,64 @@ This separation supports transparency without implying unrestricted redistributi
 
 ### 15.10 Reproducibility Status
 
-The completed research workflow includes dataset exploration, preprocessing, baseline training, cavity-aware sampling, validation-stage clinical error analysis, frozen protocol selection and independent held-out evaluation.
+The principal experimental and analytical components of the postoperative glioma MRI segmentation project have been completed.
 
-The principal experimental findings have been recorded, and case-level test metrics have been saved for subsequent analysis.
+The documented workflow encompasses dataset exploration, multimodal MRI preprocessing, subject-level data partitioning, baseline 3D U-Net training, cavity-aware sampling experiments, validation-stage clinical error analysis, frozen evaluation protocol selection and independent held-out testing.
 
-At the time of this report, consolidation of the standalone evaluation notebook, public figures and repository documentation remains part of the final portfolio preparation.
+The final evaluation was conducted on 198 MRI examinations from 92 subjects. Its results were consolidated in `notebooks/04_model_evaluation.ipynb`, including regional performance comparisons, resection-cavity false-positive analysis, paired post-processing comparisons, subject-clustered bootstrap estimation and investigation of a selected anatomical failure case.
 
-Accordingly, the project currently supports documented methodological reproducibility and locally reproducible evaluation.
+Eight evaluation figures were generated and saved to `outputs/figures/`.
 
-Full public computational reproduction remains dependent on access to the original dataset, appropriate software dependencies and the selected model checkpoint.
+#### Verification of Saved Experimental Artifacts
 
-The final repository release should make these dependencies explicit and provide sufficient instructions for readers to understand, inspect and, where resources permit, reproduce the reported work.
+A final integrity check was performed after completion of the evaluation notebook.
+
+The verification confirmed:
+
+- Availability of the selected epoch-38 model checkpoint.
+- Availability of the frozen evaluation protocol.
+- Availability of the saved held-out test metrics.
+- Presence of all eight evaluation figures.
+- Complete coverage of 198 examinations from 92 subjects.
+- A total of 1,584 evaluation rows, representing two prediction methods and four anatomical regions per examination.
+- Absence of duplicate examination–method–region records.
+- Appropriate exclusion of reference-absent regions from Dice calculations.
+
+All final integrity checks passed.
+
+Additionally, the examination demonstrating the largest deterioration in resection-cavity Dice following post-processing was reconstructed using the original preprocessing implementation, frozen model checkpoint and recorded inference parameters.
+
+The reconstructed voxel counts and Dice scores matched the saved evaluation results, supporting the reproducibility of the selected failure-case analysis.
+
+#### Levels of Reproducibility Achieved
+
+**Methodological reproducibility:** The repository documents the experimental design, preprocessing methodology, model architecture, training configuration, evaluation protocol and interpretation of results.
+
+**Analytical reproducibility:** The saved case-level metrics support recalculation of the principal regional performance summaries, paired comparisons and statistical uncertainty estimates without repeating full-volume MRI inference.
+
+**Local computational reproducibility:** The original imaging data, selected checkpoint and experimental artifacts remain available in the local research environment, enabling the documented inference procedures to be repeated using compatible software and hardware.
+
+These levels of reproducibility do not imply that the complete experiment can be reproduced from the public repository alone.
+
+#### Public Reproducibility Limitations
+
+The original BraTS imaging dataset, trained model checkpoint and certain experiment artifacts are stored separately from the version-controlled repository.
+
+Consequently, readers cloning the public repository may inspect the source code, methodology, documentation and committed figures, but full inference reproduction requires additional data and artifacts.
+
+Similarly, analytical reproduction from saved case-level metrics requires access to those metrics. Their local availability does not establish that they are included in the public repository.
+
+Exact software dependencies, portable configuration files and publicly shareable derived results should be reviewed as part of the final repository audit.
+
+#### Overall Status
+
+The experimental evaluation, statistical analysis, clinical failure-case investigation, evaluation notebook and local artifact-integrity verification are complete.
+
+The remaining work concerns public repository finalisation, including documentation consistency, dependency specification, navigation, appropriate sharing of derived results and verification of reproducibility instructions.
+
+The project therefore supports a completed, internally evaluated research study with documented methodology and locally verified experimental artifacts.
+
+**It does not yet constitute a fully self-contained, publicly reproducible release or a clinically validated segmentation system.**
 
 ---
 
@@ -1984,20 +2083,36 @@ These findings demonstrate the importance of evaluating segmentation models usin
 
 ### 16.3 Remaining Repository Finalisation
 
-Although the experimental work is complete, several documentation and presentation tasks remain before the project can be considered fully finalised as a public research portfolio.
+The principal experimental and analytical work has been completed, including independent held-out evaluation, statistical analysis, clinical failure-case investigation and verification of saved evaluation artifacts.
 
-| Remaining task | Purpose | Status |
+The standalone evaluation notebook, `notebooks/04_model_evaluation.ipynb`, has been completed and includes a final integrity-check cell confirming the availability and structural completeness of the principal local experiment artifacts.
+
+Eight final evaluation figures have also been generated and saved.
+
+The remaining work primarily concerns documentation consistency, public accessibility and reproducibility of the GitHub portfolio.
+
+| Project component | Purpose | Current status |
 |---|---|---|
-| Final consistency review of research report | Ensure methods, results, limitations and conclusions agree | In progress |
-| Standalone evaluation notebook | Reproduce final statistics and figures from saved results | Pending |
-| Final performance and anatomical figures | Communicate principal findings visually | Pending |
-| Public evaluation summaries | Enable inspection of permissible derived results | Pending |
-| README and repository navigation | Make the project accessible to clinical and technical readers | Pending final review |
-| Reproducibility and public-file audit | Verify dependencies, paths, links and data-sharing boundaries | Pending |
+| Independent held-out evaluation | Assess the frozen model on 198 examinations from 92 subjects | Completed |
+| Standalone evaluation notebook | Document final metrics, statistical comparisons, visualisations and failure-case analysis | Completed |
+| Final evaluation figures | Present regional performance, RC post-processing effects and anatomical errors | Completed — eight figures saved |
+| Local evaluation integrity checks | Verify checkpoint, protocol, metrics, cohort coverage and figures | Completed — all checks passed |
+| Research report consistency review | Ensure methods, results, interpretation and conclusions reflect completed experiments | In progress |
+| Public evaluation summaries | Enable independent inspection and recalculation of permissible derived results | Pending verification and preparation |
+| README and repository navigation | Present the project clearly to clinical and technical readers | Pending final review |
+| Software environment specification | Document package versions and dependencies required for reproduction | Pending verification |
+| Reproducibility and public-file audit | Check repository paths, notebook execution requirements, links and data-sharing boundaries | Pending |
+| Final GitHub release | Publish a coherent, documented research portfolio | Pending |
 
-These tasks concern reproducibility, documentation and presentation rather than additional experimental investigation.
+The remaining tasks do not require additional model training, hyperparameter optimisation or repeated held-out test inference.
 
-The original development notebook and saved experimental artefacts will be preserved as records of the completed research.
+In particular, further modification of the existing model or relative-confidence correction in response to held-out test findings would constitute a new research iteration and require an appropriately independent evaluation strategy.
+
+The immediate priority is therefore to ensure that the completed work can be understood, inspected and, where the necessary data and artifacts are available, reproduced by other researchers.
+
+Once the remaining documentation and repository checks are complete, the project can be designated as a finalised portfolio release.
+
+The current model remains a research demonstration and is not suitable for clinical deployment.
 
 ### 16.4 Scope of the Completed Study
 
@@ -2022,7 +2137,7 @@ The experimental phase of the glioma MRI segmentation project is **complete**.
 
 The remaining milestone is to consolidate the results into a clearly documented, independently reviewable and reproducible public GitHub portfolio.
 
-Once the standalone evaluation notebook, final figures, repository documentation and quality checks are completed, the project can be designated as a finalised portfolio release.
+Once the remaining repository documentation, software environment specification, public reproducibility checks and final GitHub quality audit are completed, the project can be designated as a finalised portfolio release.
 
 Subsequent model improvements or expanded clinical applications should be treated as separate research iterations with their own objectives and evaluation protocols.
 
@@ -2066,36 +2181,34 @@ Beyond its immediate segmentation findings, the project establishes a methodolog
 
 ## 18. References
 
-## 18. References
-
 ### 18.1 Dataset and Postoperative Glioma Segmentation
 
-1. Correia de Verdier M, Saluja R, Gagnon L, et al. The 2024 Brain Tumor Segmentation (BraTS) Challenge: Glioma Segmentation on Post-treatment MRI. *arXiv*. 2024. arXiv:2405.18368.  
+1. Correia de Verdier M, Saluja R, Gagnon L, et al. The 2024 Brain Tumor Segmentation (BraTS) Challenge: Glioma Segmentation on Post-treatment MRI. *arXiv*. 2024. arXiv:2405.18368.
    https://arxiv.org/abs/2405.18368
 
-2. Baig S, Vidic I, Mastorakos GM, et al. Segmentation of pre- and posttreatment diffuse glioma tissue subregions including resection cavities. *Neurooncol Adv*. 2024;6(1):vdae140.  
+2. Baig S, Vidic I, Mastorakos GM, et al. Segmentation of pre- and posttreatment diffuse glioma tissue subregions including resection cavities. *Neurooncol Adv*. 2024;6(1):vdae140.
    https://doi.org/10.1093/noajnl/vdae140
 
 ### 18.2 Deep-Learning Architectures and Segmentation Methods
 
-3. Ronneberger O, Fischer P, Brox T. U-Net: Convolutional Networks for Biomedical Image Segmentation. In: *Medical Image Computing and Computer-Assisted Intervention – MICCAI 2015*. Lecture Notes in Computer Science. Vol 9351. Springer; 2015:234–241.  
+3. Ronneberger O, Fischer P, Brox T. U-Net: Convolutional Networks for Biomedical Image Segmentation. In: *Medical Image Computing and Computer-Assisted Intervention – MICCAI 2015*. Lecture Notes in Computer Science. Vol 9351. Springer; 2015:234–241.
    https://doi.org/10.1007/978-3-319-24574-4_28
 
-4. Çiçek Ö, Abdulkadir A, Lienkamp SS, Brox T, Ronneberger O. 3D U-Net: Learning Dense Volumetric Segmentation from Sparse Annotation. In: *Medical Image Computing and Computer-Assisted Intervention – MICCAI 2016*. Lecture Notes in Computer Science. Vol 9901. Springer; 2016:424–432.  
+4. Çiçek Ö, Abdulkadir A, Lienkamp SS, Brox T, Ronneberger O. 3D U-Net: Learning Dense Volumetric Segmentation from Sparse Annotation. In: *Medical Image Computing and Computer-Assisted Intervention – MICCAI 2016*. Lecture Notes in Computer Science. Vol 9901. Springer; 2016:424–432.
    https://arxiv.org/abs/1606.06650
 
-5. Milletari F, Navab N, Ahmadi SA. V-Net: Fully Convolutional Neural Networks for Volumetric Medical Image Segmentation. In: *2016 Fourth International Conference on 3D Vision (3DV)*. IEEE; 2016:565–571.  
+5. Milletari F, Navab N, Ahmadi SA. V-Net: Fully Convolutional Neural Networks for Volumetric Medical Image Segmentation. In: *2016 Fourth International Conference on 3D Vision (3DV)*. IEEE; 2016:565–571.
    https://doi.org/10.1109/3DV.2016.79
 
-6. Isensee F, Jaeger PF, Kohl SAA, Petersen J, Maier-Hein KH. nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation. *Nat Methods*. 2021;18(2):203–211.  
+6. Isensee F, Jaeger PF, Kohl SAA, Petersen J, Maier-Hein KH. nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation. *Nat Methods*. 2021;18(2):203–211.
    https://doi.org/10.1038/s41592-020-01008-z
 
 ### 18.3 Medical-Imaging Software and Three-Dimensional Reconstruction
 
-7. Cardoso MJ, Li W, Brown R, et al. MONAI: An open-source framework for deep learning in healthcare. *arXiv*. 2022. arXiv:2211.02701.  
+7. Cardoso MJ, Li W, Brown R, et al. MONAI: An open-source framework for deep learning in healthcare. *arXiv*. 2022. arXiv:2211.02701.
    https://arxiv.org/abs/2211.02701
 
-8. Fedorov A, Beichel R, Kalpathy-Cramer J, et al. 3D Slicer as an image computing platform for the Quantitative Imaging Network. *Magn Reson Imaging*. 2012;30(9):1323–1341.  
+8. Fedorov A, Beichel R, Kalpathy-Cramer J, et al. 3D Slicer as an image computing platform for the Quantitative Imaging Network. *Magn Reson Imaging*. 2012;30(9):1323–1341.
    https://doi.org/10.1016/j.mri.2012.05.001
 
 ### 18.4 Longitudinal Imaging and Future Neuro-Oncological Applications
@@ -2111,4 +2224,8 @@ The model-development experiments, validation analyses, relative-confidence post
 These findings are documented in the accompanying research report, notebooks and saved experimental outputs. They should not be attributed to the external publications listed above.
 ---
 
-**Document status:** Living research report. Results will be updated as additional validation, experiments and independent testing are completed.
+**Document status:** Completed experimental study — final repository preparation in progress.
+
+The baseline model-development experiments, independent held-out evaluation, statistical analysis and clinical failure-case investigation have been completed. The research report documents the final findings, methodology, limitations and proposed future directions.
+
+Remaining work is limited to repository documentation, public reproducibility checks and final portfolio presentation. Future model improvements or additional validation studies will be documented as separate research iterations.
