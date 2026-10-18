@@ -392,7 +392,7 @@ The research report, evaluation figures and software environment specifications 
 - [x] Review saved notebook errors and selected repository paths.
 - [x] Verify consistency of the principal scientific results.
 - [x] Confirm essential project files and screen tracked files for MRI/model artifacts.
-- [ ] Independently verify public GitHub accessibility.
+- [x] Independently verify public GitHub accessibility.
 
 **Research report:** [`glioma_segmentation_report.md`](reports/glioma_segmentation_report.md)
 
