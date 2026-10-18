@@ -309,7 +309,7 @@ The software environment used for this study is documented in [`environment.yml`
 
 The dependency versions have been checked for consistency, and the YAML configuration has been validated. However, a fresh environment installation and end-to-end computational reproduction have not yet been independently tested. The original MRI dataset, frozen model checkpoint and complete local experimental artifacts remain outside the public repository.
 
-Final repository quality checks, including notebook outputs, relative paths and public accessibility, remain in progress.
+Repository quality checks have confirmed the presence of the essential research files, the absence of saved notebook error outputs, consistency of the principal reported results, and the exclusion of MRI volumes and model checkpoints from Git tracking. Selected notebook paths have been made configurable. Fresh-environment reconstruction, uninterrupted end-to-end notebook execution and independent public-access verification have not been performed.
 
 ---
 
@@ -388,13 +388,15 @@ The research report, evaluation figures and software environment specifications 
 - [x] Generate the final evaluation figures.
 - [x] Document the software environment and verify dependency-version consistency.
 - [x] Confirm that the intended research report, notebooks and evaluation figures are committed.
-- [ ] Finalise the public-facing README.
-- [ ] Review notebook outputs, repository paths and public reproducibility.
-- [ ] Complete the final GitHub repository quality audit.
+- [x] Finalise the public-facing README.
+- [x] Review saved notebook errors and selected repository paths.
+- [x] Verify consistency of the principal scientific results.
+- [x] Confirm essential project files and screen tracked files for MRI/model artifacts.
+- [ ] Independently verify public GitHub accessibility.
 
 **Research report:** [`glioma_segmentation_report.md`](reports/glioma_segmentation_report.md)
 
-**Current milestone:** The experimental research, independent evaluation, research documentation and software environment specification are complete. Remaining work concerns final README refinement, notebook and path auditing, and public GitHub release verification.
+**Current milestone:** The experimental research, independent evaluation, research documentation, software environment specification and principal repository quality checks are complete. The remaining publication task is independent verification of public GitHub accessibility. Fresh-environment reconstruction and complete computational reproduction have not been independently tested.
 
 ---
 
@@ -608,9 +610,7 @@ Future work should investigate how segmentation uncertainty, false-positive regi
 
 A longer-term research direction is to extend tumour segmentation towards prediction of the spatial patterns of glioma recurrence and progression.
 
-Glioblastoma is an infiltrative disease in which tumour cells may extend beyond abnormalities visible on conventional MRI. Of particular interest is whether
-
-information from the visible tumour, surrounding tissue, and cerebral white-matter architecture can be combined to identify preferential pathways of subsequent progression.
+Glioblastoma is an infiltrative disease in which tumour cells may extend beyond abnormalities visible on conventional MRI. Of particular interest is whether information from the visible tumour, surrounding tissue, and cerebral white-matter architecture can be combined to identify preferential pathways of subsequent progression.
 
 Recent research has investigated ****diffusion tensor imaging (DTI)****, tractography, and computational modelling of tumour–white-matter relationships as potential approaches for studying these pathways. Machine-learning and deep-learning methods provide additional means of extracting and integrating multimodal spatial features.
 
@@ -682,9 +682,7 @@ Potential areas of investigation include:
 
 - comparison between predicted and observed spatial patterns of progression.
 
-A particularly interesting extension would be to investigate whether detailed ****three-dimensional tumour segmentation**** provides useful spatial information
-
-for recurrence modelling beyond tumour localization alone.
+A particularly interesting extension would be to investigate whether detailed ****three-dimensional tumour segmentation**** provides useful spatial information for recurrence modelling beyond tumour localization alone.
 
 This represents a progression from asking:
 
@@ -694,19 +692,11 @@ to investigating:
 
 > ****Where is the tumour likely to progress or recur?****
 
-The BraTS dataset used for the current segmentation project does not contain the DTI data required for this work. Such an investigation would therefore
+The BraTS dataset used for the current segmentation project does not contain the DTI data required for this work. Such an investigation would therefore constitute a separate future research project requiring an appropriate longitudinal dataset containing diffusion imaging, follow-up imaging, and suitable recurrence or progression outcomes.
 
-constitute a separate future research project requiring an appropriate longitudinal dataset containing diffusion imaging, follow-up imaging, and
+These approaches remain investigational. Particular attention would be required to distinguish biologically meaningful predictive performance from patterns arising from small datasets, synthetic augmentation, institutional imaging protocols, or assumptions incorporated into computational models.
 
-suitable recurrence or progression outcomes.
-
-These approaches remain investigational. Particular attention would be required to distinguish biologically meaningful predictive performance from patterns
-
-arising from small datasets, synthetic augmentation, institutional imaging protocols, or assumptions incorporated into computational models.
-
-Any future predictive model would therefore require rigorous evaluation using real longitudinal recurrence data, appropriate validation methodology, and,
-
-where possible, independent or external datasets before conclusions regarding clinical utility could be drawn.
+Any future predictive model would therefore require rigorous evaluation using real longitudinal recurrence data, appropriate validation methodology, and, where possible, independent or external datasets before conclusions regarding clinical utility could be drawn.
 
 ### 3. Additional Model Development
 
@@ -726,9 +716,7 @@ Other possible extensions include:
 
 - integration of imaging features with clinical and molecular variables;
 
-- development of clinician-oriented visualization tools for reviewing model
-
-  predictions.
+- development of clinician-oriented visualization tools for reviewing model predictions.
 
 ---
 
@@ -781,7 +769,7 @@ The project is presented as an exploratory research contribution and a foundatio
 
 ## Project Status
 
-**Completed experimental study — final repository preparation in progress.**
+**Completed experimental study — final public-access verification pending.**
 
 The principal research milestones have been completed:
 
@@ -794,7 +782,7 @@ The principal research milestones have been completed:
 - Preparation of the full research report and evaluation figures.
 - Documentation and version-consistency verification of the software environment.
 
-Remaining repository tasks include finalising the README, reviewing notebook outputs and file paths, verifying public accessibility of the research artifacts and completing the final GitHub quality audit. Independent recreation of the software environment and complete computational reproduction remain unverified.
+The principal research milestones and repository quality checks have been completed. The remaining publication task is independent verification that the public GitHub repository and its research documentation can be accessed without authentication. Independent recreation of the software environment and complete computational reproduction remain unverified.
 
 The Git commit history documents the project's progression from initial MRI exploration through model development, independent evaluation and clinical interpretation.
 
